@@ -7,7 +7,7 @@
 
   </description>
   <author>Patrick Goebel</author>
-  <license>BSD</license>
+  <license>GPLv2</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/ros2opencv</url>
   <depend package="roscpp"/>

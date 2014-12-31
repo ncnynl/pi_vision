@@ -6,7 +6,7 @@
 
   </description>
   <author>Patrick Goebel</author>
-  <license>BSD</license>
+  <license>GPLv2</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/pi_face_tracker</url>
   <depend package="rospy"/>
