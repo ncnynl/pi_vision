@@ -49,8 +49,19 @@ from geometry_msgs.msg import Point
 import time
 import os
 import logging
+import numpy as np
 from pi_face_tracker.cfg import PiFaceTrackerConfig
 from dynamic_reconfigure.server import Server
+from cv_bridge import CvBridge
+
+cwd = os.path.dirname(os.path.realpath(__file__))
+repo = os.path.split(os.path.split(cwd)[0])[0]
+head = os.path.split(repo)[0]
+
+face_rec = head + '/ros_face_recognition/scripts'
+sys.path.insert(0, face_rec)
+
+from face_recognizer import FaceRecognizer
 
 logger = logging.getLogger('hr.pi_vision.pi_face_tracker')
 
@@ -138,6 +149,7 @@ class FaceBox():
         self.yz_smooth_factor = 0.64
         self.x_smooth_factor = 0.95
         self.loc_3d = Point()
+        self.name = "Unknown"
 
     def _points_area(self, pt1,pt2):
         return (pt2[0]-pt1[0])*(pt2[1]-pt1[1])
@@ -376,6 +388,7 @@ class FacesRegistry():
             if self.faces[f].is_trackable():
                 face = Face()
                 face.id = f
+                face.name  = self.faces[f].name
                 face.point = self.faces[f].get_filtered_3d_point()
                 face.attention = self.faces[f].attention
                 faces.append(face)
@@ -572,6 +585,22 @@ class PatchTracker(ROS2OpenCV):
                 face = self.detect_box.faces[fkey]
                 if not face.is_trackable():
                     continue
+                
+                # Let's try to identify the person by this face.
+                # Note: face is of type FaceBox
+                x1, y1 = face.pt1[0], face.pt1[1];
+                x2, y2 = face.pt2[0], face.pt2[1];
+                pad = 10 # Just to relax the face boundary
+                
+                # crop the face
+                face_cv_image = cv_image[y1: y2 + pad, x1 : x2 + pad]
+                # DEBUG cv.SaveImage('/tmp/face.png', face_cv_image)
+                bridge = CvBridge()
+                r = FaceRecognizer().infer(np.asarray(face_cv_image))
+                face.name = r[0][0];
+
+                with open('/tmp/person.txt', 'wa') as f:
+                  f.write(face.name)
 
                 if not face.track_box or not self.is_rect_nonzero(face.track_box):
                     face.features = []
