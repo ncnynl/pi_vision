@@ -599,9 +599,6 @@ class PatchTracker(ROS2OpenCV):
                 r = FaceRecognizer().infer(np.asarray(face_cv_image))
                 face.name = r[0][0];
 
-                with open('/tmp/person.txt', 'wa') as f:
-                  f.write(face.name)
-
                 if not face.track_box or not self.is_rect_nonzero(face.track_box):
                     face.features = []
                     face.update_box(face.face_box())
