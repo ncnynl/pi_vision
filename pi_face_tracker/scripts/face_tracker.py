@@ -42,9 +42,9 @@ from sensor_msgs.msg import RegionOfInterest, Image
 from math import *
 from ros2opencv.ros2opencv import ROS2OpenCV
 from pi_face_tracker.srv import KeyCommand
-from pi_face_tracker.msg import Faces
-from pi_face_tracker.msg import Face
-from pi_face_tracker.msg import FaceEvent
+from hr_msgs.msg import PiVisionFaces
+from hr_msgs.msg import PiVisionFace
+from hr_msgs.msg import FaceEvent
 from geometry_msgs.msg import Point
 import time
 import os
@@ -360,7 +360,7 @@ class FacesRegistry():
         )
         self.faces_pub = rospy.Publisher(
             self.camera_name + "/" +  self.TOPIC_FACES,
-            Faces,
+            PiVisionFaces,
             queue_size=10
         )
 
@@ -386,13 +386,13 @@ class FacesRegistry():
         faces =[]
         for f in self.faces.keys():
             if self.faces[f].is_trackable():
-                face = Face()
+                face = PiVisionFace()
                 face.id = f
                 face.name  = self.faces[f].name
                 face.point = self.faces[f].get_filtered_3d_point()
                 face.attention = self.faces[f].attention
                 faces.append(face)
-        msg = Faces()
+        msg = PiVisionFaces()
         msg.faces = faces
         self.faces_pub.publish(msg)
 
